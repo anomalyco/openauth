@@ -20,7 +20,7 @@
  */
 
 import { client } from "./aws.js"
-import { joinKey, StorageAdapter } from "./storage.js"
+import { joinKey, splitKey, StorageAdapter } from "./storage.js"
 
 /**
  * Configure the DynamoDB table that's created.
@@ -182,7 +182,10 @@ export function DynamoStorage(options: DynamoStorageOptions): StorageAdapter {
           if (item[ttl] && item[ttl].N < now) {
             continue
           }
-          yield [[item[pk].S, item[sk].S], JSON.parse(item.value.S)]
+          yield [
+            [...splitKey(item[pk].S), ...splitKey(item[sk].S)],
+            JSON.parse(item.value.S),
+          ]
         }
 
         if (!result.LastEvaluatedKey) break
